@@ -1,0 +1,35 @@
+image: onedaywillcome/roro:v1.0
+
+variables:
+  DOCKER_DRIVER: overlay
+  DOCKER_HOST: tcp://docker:2375
+
+stages:
+  - build
+  - push-ecr
+  - deploy
+  - destroy
+
+build-code:
+  stage: build
+  script: ./gradlew clean build
+  artifacts:
+    paths:
+      - build
+
+push-ecr:
+  stage: push-ecr
+  script: chmod 775 ./deploy/execute.sh && ./deploy/execute.sh dockerize
+  services:
+    - docker:dind
+
+deploy:
+  stage: deploy
+  script: chmod 775 ./deploy/execute.sh && ./deploy/execute.sh deploy
+  services:
+    - docker:dind
+
+destroy:
+  stage: destroy
+  when: manual
+  script: chmod 775 ./deploy/execute.sh && ./deploy/execute.sh destroy

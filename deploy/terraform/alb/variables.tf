@@ -1,0 +1,1 @@
+variable "alb_name" {}
